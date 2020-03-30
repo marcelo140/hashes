@@ -62,6 +62,14 @@ impl Engine256 {
         }
     }
 
+    fn with_internal_state(h: &[u32; STATE_LEN], len: u64) -> Engine256 {
+        Engine256 {
+            len: len,
+            buffer: Default::default(),
+            state: Engine256State::new(h),
+        }
+    }
+
     fn input(&mut self, input: &[u8]) {
         // Assumes that input.len() can be converted to u64 without overflow
         self.len += (input.len() as u64) << 3;
@@ -87,6 +95,12 @@ impl Engine256 {
 #[derive(Clone)]
 pub struct Sha256 {
     engine: Engine256,
+}
+
+impl Sha256 {
+    pub fn with_internal_state(state: &[u32; STATE_LEN], bytes_processed: u64) -> Self {
+        Sha256 { engine: Engine256::with_internal_state(&state, bytes_processed*8) }
+    }
 }
 
 impl Default for Sha256 {
